@@ -1,3 +1,25 @@
+<?php
+include_once "../controllers/userController.php";
+include_once "../models/userModel.php"; 
+$userController = new UserController();
+if (!$userController->validateLogin()) {
+    header("Location: login.php");
+    exit;
+}
+
+if (!$userController->isUserAdmin()) {
+    header("Location: home.php");
+    exit;
+}
+
+if (isset($_POST['username'])) {
+    $userController->addUser();
+}
+
+include_once "../php/header.php";
+?>
+
+
 <!DOCTYPE html>
 <html lang="nl">
 <head>
@@ -10,7 +32,7 @@
         <section>
             <h2>Add user</h2>
 
-            <form action="admin.php" method="post">
+            <form action="" method="post">
                 <label for="username">Username</label>
                 <input type="text" name="username" id="username" required>
                 <label for="password">Password</label>
@@ -19,37 +41,43 @@
             </form>
 
         </section>
+        <section>
+            <h2>Add posts</h2>
+
+            <form action="/api/addPost.php" method="post">
+                <input type="text" name="title" placeholder="Title">
+                <input type="text" name="description" placeholder="Description">
+                <textarea name="content" placeholder="Content"></textarea>
+                <input type="submit" value="Add Post">
+            </form>
+        </section>
+
+
+        <section>
+            <h2>Users</h2>
+
+            <?php
+
+            $userModel = new UserModel();
+            $users = $userModel->getUsers();
+
+            if ($users) {
+                foreach ($users as $user) {
+                    ?>
+                    <h3><?php echo $user['username'] ?></h3>
+                    <a href="/api/deleteUser.php?id=<?php echo $user['id'] ?>">Delete</a>
+                    <?php
+                }
+            } else {
+                echo "No users found";
+            }
+
+
+
+            ?>
+        </section>
     </main>
 </body>
-
-
-<script>
-    const form = document.querySelector("form");
-    form.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const formData = new FormData(form);
-        const username = formData.get("username");
-        const password = formData.get("password");
-
-        const response = await fetch("/api/addUser.php", {
-            method: "POST",
-            body: JSON.stringify({
-                username,
-                password
-            })
-        });
-
-        const data = await response.json();
-        console.log(data);
-
-        // if (response.ok) {
-        //     alert("User added");
-        // } else {
-        //     alert("Error adding user");
-        // }
-
-    });
-</script>
 </html>
 
 
