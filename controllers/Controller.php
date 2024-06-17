@@ -31,7 +31,6 @@ class Controller {
     }
     /**
      * Function to validate login
-     * @return boolean
      * Sends user to login page if not logged in
      */
     public function validateLogin() {
